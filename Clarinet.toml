@@ -1,0 +1,48 @@
+[project]
+name = 'bitvault'
+description = 'Multi-Signature Treasury & DAO Toolkit for Bitcoin'
+authors = []
+telemetry = false
+cache_dir = '.\\.cache'
+requirements = []
+
+[contracts.multisig-vault]
+path = 'contracts/multisig-vault.clar'
+clarity_version = 3
+epoch = 'latest'
+
+[contracts.governance-token]
+path = 'contracts/governance-token.clar'
+clarity_version = 3
+epoch = 'latest'
+
+[contracts.proposal-engine]
+path = 'contracts/proposal-engine.clar'
+clarity_version = 3
+epoch = 'latest'
+depends_on = ['multisig-vault']
+
+[contracts.voting]
+path = 'contracts/voting.clar'
+clarity_version = 3
+epoch = 'latest'
+depends_on = ['multisig-vault', 'proposal-engine']
+
+[contracts.treasury]
+path = 'contracts/treasury.clar'
+clarity_version = 3
+epoch = 'latest'
+depends_on = ['multisig-vault', 'proposal-engine']
+
+[repl.analysis]
+passes = ['check_checker']
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
+
+[repl.remote_data]
+enabled = false
+api_url = 'https://api.hiro.so'
