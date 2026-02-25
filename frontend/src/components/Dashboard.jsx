@@ -1,13 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { request } from "@stacks/connect";
 import {
-    uintCV,
-    stringAsciiCV,
-    principalCV,
-    someCV,
-    noneCV,
-    boolCV,
-    serializeCV,
+    Cl,
+    cvToHex,
 } from "@stacks/transactions";
 import { CONTRACT_ADDRESS, STACKS_NETWORK } from "../stacksConfig";
 
@@ -17,9 +12,9 @@ const API_BASE =
         ? "https://api.hiro.so"
         : "https://api.testnet.hiro.so";
 
-// Serialize a Clarity value to hex for API calls
+// Serialize a Clarity value to hex for the read-only API
 function toHex(cv) {
-    return "0x" + Buffer.from(serializeCV(cv)).toString("hex");
+    return cvToHex(cv);
 }
 
 // Call a read-only function on-chain
@@ -35,13 +30,16 @@ async function readOnly(contractName, fnName, args = []) {
     return res.json();
 }
 
-// Build a contract call params object for v8 request()
+// Build params for @stacks/connect v8 request('stx_callContract')
+// functionArgs must be hex-encoded Clarity values
 function contractCallParams(contractName, fnName, fnArgs) {
     return {
-        contract: `${CONTRACT_ADDRESS}.${contractName}`,
+        contractAddress: CONTRACT_ADDRESS,
+        contractName: contractName,
         functionName: fnName,
-        functionArgs: fnArgs,
+        functionArgs: fnArgs.map(cvToHex),
         network: STACKS_NETWORK,
+        postConditionMode: "allow",
     };
 }
 
@@ -98,10 +96,10 @@ function Dashboard({ stxAddress, showToast }) {
             const vaultList = [];
             for (let i = 0; i < Math.min(totalVaults, 10); i++) {
                 try {
-                    const vRes = await readOnly("multisig-vault", "get-vault", [toHex(uintCV(i))]);
+                    const vRes = await readOnly("multisig-vault", "get-vault", [toHex(Cl.uint(i))]);
                     if (vRes.okay && vRes.result?.type === "some") {
                         const v = vRes.result.value;
-                        const bRes = await readOnly("treasury", "get-stx-balance", [toHex(uintCV(i))]);
+                        const bRes = await readOnly("treasury", "get-stx-balance", [toHex(Cl.uint(i))]);
                         const balance = bRes.okay ? parseInt(bRes.result?.value ?? "0", 10) : 0;
                         vaultList.push({
                             id: i,
@@ -121,7 +119,7 @@ function Dashboard({ stxAddress, showToast }) {
             const proposalList = [];
             for (let i = 0; i < Math.min(totalProposals, 10); i++) {
                 try {
-                    const pRes = await readOnly("proposal-engine", "get-proposal", [toHex(uintCV(i))]);
+                    const pRes = await readOnly("proposal-engine", "get-proposal", [toHex(Cl.uint(i))]);
                     if (pRes.okay && pRes.result?.type === "some") {
                         const p = pRes.result.value;
                         proposalList.push({
@@ -169,7 +167,7 @@ function Dashboard({ stxAddress, showToast }) {
         if (!vaultName.trim()) return showToast("Vault name is required", "error");
         await callContract(
             "multisig-vault", "create-vault",
-            [stringAsciiCV(vaultName), uintCV(parseInt(vaultThreshold) || 1)],
+            [Cl.stringAscii(vaultName), Cl.uint(parseInt(vaultThreshold) || 1)],
             () => { setShowCreateModal(false); setVaultName(""); }
         );
     };
@@ -179,24 +177,23 @@ function Dashboard({ stxAddress, showToast }) {
         if (!amountMicro || amountMicro <= 0) return showToast("Enter a valid amount", "error");
         await callContract(
             "treasury", "deposit-stx",
-            [uintCV(parseInt(depositVaultId)), uintCV(amountMicro)],
+            [Cl.uint(parseInt(depositVaultId)), Cl.uint(amountMicro)],
             () => { setShowDepositModal(false); setDepositAmount(""); }
         );
     };
 
     const createProposal = async () => {
         if (!proposalTitle.trim()) return showToast("Title is required", "error");
-        const targetArg = targetPrincipal.trim() ? someCV(principalCV(targetPrincipal)) : noneCV();
         await callContract(
             "proposal-engine", "create-proposal",
             [
-                uintCV(parseInt(proposalVaultId)),
-                stringAsciiCV(proposalTitle),
-                stringAsciiCV(proposalDesc || "No description"),
-                uintCV(parseInt(proposalType)),
-                uintCV(parseInt(votingPeriod) || 144),
-                targetArg,
-                uintCV(parseInt(targetAmount) || 0),
+                Cl.uint(parseInt(proposalVaultId)),
+                Cl.stringAscii(proposalTitle),
+                Cl.stringAscii(proposalDesc || "No description"),
+                Cl.uint(parseInt(proposalType)),
+                Cl.uint(parseInt(votingPeriod) || 144),
+                targetPrincipal.trim() ? Cl.some(Cl.principal(targetPrincipal)) : Cl.none(),
+                Cl.uint(parseInt(targetAmount) || 0),
             ],
             () => { setShowProposalModal(false); setProposalTitle(""); setProposalDesc(""); }
         );
@@ -206,7 +203,7 @@ function Dashboard({ stxAddress, showToast }) {
         if (!memberAddress.trim()) return showToast("Member address required", "error");
         await callContract(
             "multisig-vault", "add-member",
-            [uintCV(parseInt(memberVaultId)), principalCV(memberAddress), stringAsciiCV(memberRole)],
+            [Cl.uint(parseInt(memberVaultId)), Cl.principal(memberAddress), Cl.stringAscii(memberRole)],
             () => { setShowMemberModal(false); setMemberAddress(""); }
         );
     };
@@ -214,7 +211,7 @@ function Dashboard({ stxAddress, showToast }) {
     const castVote = async (proposalId, vote) => {
         await callContract(
             "voting", "cast-vote",
-            [uintCV(proposalId), boolCV(vote)],
+            [Cl.uint(proposalId), Cl.bool(vote)],
             null
         );
     };
