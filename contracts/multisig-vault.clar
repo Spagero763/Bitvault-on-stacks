@@ -41,16 +41,19 @@
     threshold: uint,
     member-count: uint,
     created-at: uint,
-    is-locked: bool
+    is-locked: bool,
   }
 )
 
 ;; Vault membership
 (define-map vault-members
-  { vault-id: uint, member: principal }
+  {
+    vault-id: uint,
+    member: principal,
+  }
   {
     added-at: uint,
-    role: (string-ascii 16)
+    role: (string-ascii 16),
   }
 )
 
@@ -68,16 +71,34 @@
   (map-get? vaults { vault-id: vault-id })
 )
 
-(define-read-only (get-vault-member (vault-id uint) (member principal))
-  (map-get? vault-members { vault-id: vault-id, member: member })
+(define-read-only (get-vault-member
+    (vault-id uint)
+    (member principal)
+  )
+  (map-get? vault-members {
+    vault-id: vault-id,
+    member: member,
+  })
 )
 
-(define-read-only (is-member (vault-id uint) (who principal))
-  (is-some (map-get? vault-members { vault-id: vault-id, member: who }))
+(define-read-only (is-member
+    (vault-id uint)
+    (who principal)
+  )
+  (is-some (map-get? vault-members {
+    vault-id: vault-id,
+    member: who,
+  }))
 )
 
-(define-read-only (is-vault-owner (vault-id uint) (who principal))
-  (match (map-get? vault-members { vault-id: vault-id, member: who })
+(define-read-only (is-vault-owner
+    (vault-id uint)
+    (who principal)
+  )
+  (match (map-get? vault-members {
+    vault-id: vault-id,
+    member: who,
+  })
     member-data (is-eq (get role member-data) "owner")
     false
   )
@@ -110,40 +131,36 @@
 ;; ---------------------------------------------------------------------------
 
 ;; Create a new multi-sig vault
-(define-public (create-vault (name (string-ascii 64)) (threshold uint))
-  (let
-    (
+(define-public (create-vault
+    (name (string-ascii 64))
+    (threshold uint)
+  )
+  (let (
       (new-id (var-get vault-nonce))
       (caller tx-sender)
     )
     (asserts! (> (len name) u0) ERR-INVALID-NAME)
     (asserts! (>= threshold u1) ERR-INVALID-THRESHOLD)
-    (asserts! (<= threshold u1) ERR-THRESHOLD-TOO-HIGH)
+    (asserts! (<= threshold MAX-MEMBERS) ERR-THRESHOLD-TOO-HIGH)
 
-    (map-set vaults
-      { vault-id: new-id }
-      {
-        name: name,
-        owner: caller,
-        threshold: threshold,
-        member-count: u1,
-        created-at: stacks-block-height,
-        is-locked: false
-      }
-    )
+    (map-set vaults { vault-id: new-id } {
+      name: name,
+      owner: caller,
+      threshold: threshold,
+      member-count: u1,
+      created-at: stacks-block-height,
+      is-locked: false,
+    })
 
-    (map-set vault-members
-      { vault-id: new-id, member: caller }
-      {
-        added-at: stacks-block-height,
-        role: "owner"
-      }
-    )
+    (map-set vault-members {
+      vault-id: new-id,
+      member: caller,
+    } {
+      added-at: stacks-block-height,
+      role: "owner",
+    })
 
-    (map-set owner-vault-count
-      { owner: caller }
-      { count: (+ (get count (get-owner-vault-count caller)) u1) }
-    )
+    (map-set owner-vault-count { owner: caller } { count: (+ (get count (get-owner-vault-count caller)) u1) })
 
     (var-set vault-nonce (+ new-id u1))
     (ok new-id)
@@ -151,9 +168,12 @@
 )
 
 ;; Add a member to the vault
-(define-public (add-member (vault-id uint) (new-member principal) (role (string-ascii 16)))
-  (let
-    (
+(define-public (add-member
+    (vault-id uint)
+    (new-member principal)
+    (role (string-ascii 16))
+  )
+  (let (
       (vault (unwrap! (map-get? vaults { vault-id: vault-id }) ERR-VAULT-NOT-FOUND))
       (caller tx-sender)
       (current-count (get member-count vault))
@@ -163,16 +183,15 @@
     (asserts! (not (is-member vault-id new-member)) ERR-MEMBER-EXISTS)
     (asserts! (< current-count MAX-MEMBERS) ERR-MAX-MEMBERS-REACHED)
 
-    (map-set vault-members
-      { vault-id: vault-id, member: new-member }
-      {
-        added-at: stacks-block-height,
-        role: role
-      }
-    )
+    (map-set vault-members {
+      vault-id: vault-id,
+      member: new-member,
+    } {
+      added-at: stacks-block-height,
+      role: role,
+    })
 
-    (map-set vaults
-      { vault-id: vault-id }
+    (map-set vaults { vault-id: vault-id }
       (merge vault { member-count: (+ current-count u1) })
     )
 
@@ -181,9 +200,11 @@
 )
 
 ;; Remove a member from the vault
-(define-public (remove-member (vault-id uint) (member principal))
-  (let
-    (
+(define-public (remove-member
+    (vault-id uint)
+    (member principal)
+  )
+  (let (
       (vault (unwrap! (map-get? vaults { vault-id: vault-id }) ERR-VAULT-NOT-FOUND))
       (caller tx-sender)
       (current-count (get member-count vault))
@@ -194,10 +215,12 @@
     (asserts! (is-member vault-id member) ERR-MEMBER-NOT-FOUND)
     (asserts! (> current-count (get threshold vault)) ERR-THRESHOLD-TOO-HIGH)
 
-    (map-delete vault-members { vault-id: vault-id, member: member })
+    (map-delete vault-members {
+      vault-id: vault-id,
+      member: member,
+    })
 
-    (map-set vaults
-      { vault-id: vault-id }
+    (map-set vaults { vault-id: vault-id }
       (merge vault { member-count: (- current-count u1) })
     )
 
@@ -206,9 +229,11 @@
 )
 
 ;; Update the signing threshold
-(define-public (set-threshold (vault-id uint) (new-threshold uint))
-  (let
-    (
+(define-public (set-threshold
+    (vault-id uint)
+    (new-threshold uint)
+  )
+  (let (
       (vault (unwrap! (map-get? vaults { vault-id: vault-id }) ERR-VAULT-NOT-FOUND))
       (caller tx-sender)
     )
@@ -217,8 +242,7 @@
     (asserts! (>= new-threshold u1) ERR-INVALID-THRESHOLD)
     (asserts! (<= new-threshold (get member-count vault)) ERR-THRESHOLD-TOO-HIGH)
 
-    (map-set vaults
-      { vault-id: vault-id }
+    (map-set vaults { vault-id: vault-id }
       (merge vault { threshold: new-threshold })
     )
 
@@ -228,15 +252,13 @@
 
 ;; Toggle vault lock
 (define-public (toggle-lock (vault-id uint))
-  (let
-    (
+  (let (
       (vault (unwrap! (map-get? vaults { vault-id: vault-id }) ERR-VAULT-NOT-FOUND))
       (caller tx-sender)
     )
     (asserts! (is-vault-owner vault-id caller) ERR-NOT-AUTHORIZED)
 
-    (map-set vaults
-      { vault-id: vault-id }
+    (map-set vaults { vault-id: vault-id }
       (merge vault { is-locked: (not (get is-locked vault)) })
     )
 

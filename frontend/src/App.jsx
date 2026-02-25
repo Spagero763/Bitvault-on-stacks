@@ -18,25 +18,41 @@ function App() {
   }, []);
 
   const connectWallet = useCallback(() => {
-    showConnect({
-      appDetails: { name: APP_NAME, icon: window.location.origin + "/icon.png" },
-      onFinish: () => {
-        setUserData(userSession.loadUserData());
-        showToast("Wallet connected!", "success");
-      },
-      userSession,
-    });
+    try {
+      showConnect({
+        appDetails: {
+          name: APP_NAME,
+          icon: window.location.origin + "/icon.png",
+        },
+        redirectTo: "/",
+        onFinish: () => {
+          setUserData(userSession.loadUserData());
+          showToast("Wallet connected!", "success");
+        },
+        onCancel: () => {
+          showToast("Connection cancelled", "error");
+        },
+        userSession,
+      });
+    } catch (err) {
+      console.error("Connect error:", err);
+      showToast(
+        "Install Leather/Hiro Wallet extension to connect",
+        "error"
+      );
+      window.open("https://leather.io/install-extension", "_blank");
+    }
   }, []);
 
   const disconnectWallet = useCallback(() => {
-    userSession.signUserOut();
+    userSession.signUserOut("/");
     setUserData(null);
     showToast("Wallet disconnected", "success");
   }, []);
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
+    setTimeout(() => setToast(null), 4000);
   };
 
   const stxAddress = userData?.profile?.stxAddress?.testnet || "";
@@ -56,7 +72,10 @@ function App() {
               <span className="address">
                 {stxAddress.slice(0, 6)}...{stxAddress.slice(-4)}
               </span>
-              <button className="btn btn-secondary btn-sm" onClick={disconnectWallet}>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={disconnectWallet}
+              >
                 Disconnect
               </button>
             </>
@@ -86,6 +105,23 @@ function App() {
             <button className="btn btn-primary" onClick={connectWallet}>
               Connect Hiro Wallet to Start
             </button>
+            <p
+              style={{
+                marginTop: 16,
+                fontSize: 13,
+                color: "var(--text-muted)",
+              }}
+            >
+              Don't have a wallet?{" "}
+              <a
+                href="https://leather.io/install-extension"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "var(--accent)" }}
+              >
+                Install Leather Wallet →
+              </a>
+            </p>
           </div>
         )}
       </main>
