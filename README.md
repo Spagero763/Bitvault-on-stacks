@@ -20,6 +20,30 @@ through the Stacks blockchain.
 - **Web dashboard** — a React front end for managing vaults, proposals, and
   funds from a Stacks wallet.
 
+## Architecture
+
+BitVault is made up of five Clarity contracts that build on one another:
+
+| Contract | Responsibility |
+| --- | --- |
+| `multisig-vault` | Vault creation, membership, roles, and signing threshold. |
+| `proposal-engine` | Proposal lifecycle: creation, finalization, time-lock, execution flag. |
+| `voting` | Vote casting, weighting, tallying, and quorum. |
+| `treasury` | STX deposits, proposal-gated withdrawals, and transaction history. |
+| `governance-token` | SIP-010 BVT token used for token-weighted voting. |
+
+Dependencies flow upward: `proposal-engine` reads the vault, `voting` reads both
+the vault and proposals, and `treasury` executes transfers approved by a passed
+proposal.
+
+```
+governance-token        multisig-vault
+                              |
+                       proposal-engine
+                          /        \
+                     voting       treasury
+```
+
 ## Status
 
 Deployed to the Stacks testnet and under active development. Contracts are
