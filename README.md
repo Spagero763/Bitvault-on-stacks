@@ -44,6 +44,29 @@ governance-token        multisig-vault
                      voting       treasury
 ```
 
+## Getting started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18 or newer
+- [Clarinet](https://github.com/hirosystems/clarinet) for working with the
+  contracts locally
+- A Stacks wallet such as [Leather](https://leather.io/) for using the dashboard
+
+### Install
+
+```bash
+git clone https://github.com/Spagero763/Bitvault-on-stacks.git
+cd Bitvault-on-stacks
+npm install
+```
+
+### Check the contracts
+
+```bash
+clarinet check
+```
+
 ## Status
 
 Deployed to the Stacks testnet and under active development. Contracts are
