@@ -67,6 +67,28 @@ npm install
 clarinet check
 ```
 
+## Testing
+
+The contracts are covered by a Vitest suite that runs against the Clarinet
+simnet.
+
+```bash
+npm test          # run the full suite once
+npm run test:report   # run with coverage and cost reports
+npm run test:watch    # re-run on file changes
+```
+
+## Running the dashboard
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The dashboard talks to the testnet deployment by default. Connect a Stacks
+wallet to create vaults, raise proposals, and manage funds.
+
 ## Status
 
 Deployed to the Stacks testnet and under active development. Contracts are
