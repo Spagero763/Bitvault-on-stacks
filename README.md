@@ -89,7 +89,29 @@ npm run dev
 The dashboard talks to the testnet deployment by default. Connect a Stacks
 wallet to create vaults, raise proposals, and manage funds.
 
+## Project structure
+
+```
+.
+├── contracts/        Clarity smart contracts
+├── tests/            Vitest contract tests
+├── frontend/         React + Vite dashboard
+├── deployments/      Clarinet deployment plans
+├── settings/         Network settings for Clarinet
+├── docs/             Project and contract documentation
+└── Clarinet.toml     Clarinet project manifest
+```
+
 ## Status
 
 Deployed to the Stacks testnet and under active development. Contracts are
 written for Clarity 3.
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
+opening a pull request.
+
+## License
+
+Released under the [MIT License](LICENSE).
