@@ -126,6 +126,34 @@
   (default-to { count: u0 } (map-get? owner-vault-count { owner: owner }))
 )
 
+(define-read-only (get-max-members)
+  MAX-MEMBERS
+)
+
+(define-read-only (vault-exists (vault-id uint))
+  (is-some (map-get? vaults { vault-id: vault-id }))
+)
+
+(define-read-only (is-vault-locked (vault-id uint))
+  (match (map-get? vaults { vault-id: vault-id })
+    vault-data (ok (get is-locked vault-data))
+    ERR-VAULT-NOT-FOUND
+  )
+)
+
+(define-read-only (get-member-role
+    (vault-id uint)
+    (member principal)
+  )
+  (match (map-get? vault-members {
+    vault-id: vault-id,
+    member: member,
+  })
+    member-data (some (get role member-data))
+    none
+  )
+)
+
 ;; ---------------------------------------------------------------------------
 ;; Public Functions
 ;; ---------------------------------------------------------------------------
