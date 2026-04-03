@@ -191,6 +191,12 @@
     (map-set owner-vault-count { owner: caller } { count: (+ (get count (get-owner-vault-count caller)) u1) })
 
     (var-set vault-nonce (+ new-id u1))
+    (print {
+      event: "vault-created",
+      vault-id: new-id,
+      owner: caller,
+      threshold: threshold,
+    })
     (ok new-id)
   )
 )
@@ -223,6 +229,12 @@
       (merge vault { member-count: (+ current-count u1) })
     )
 
+    (print {
+      event: "member-added",
+      vault-id: vault-id,
+      member: new-member,
+      role: role,
+    })
     (ok true)
   )
 )
@@ -252,6 +264,11 @@
       (merge vault { member-count: (- current-count u1) })
     )
 
+    (print {
+      event: "member-removed",
+      vault-id: vault-id,
+      member: member,
+    })
     (ok true)
   )
 )
