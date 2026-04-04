@@ -474,4 +474,116 @@ describe("BitVault Multi-Signature Vault", () => {
       expect(result).toBeErr(Cl.uint(102)); // ERR-VAULT-NOT-FOUND
     });
   });
+
+  // =========================================================================
+  // Read-only helpers
+  // =========================================================================
+  describe("read-only helpers", () => {
+    it("reports the maximum members per vault", () => {
+      const { result } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "get-max-members",
+        [],
+        deployer
+      );
+      expect(result).toBeUint(20);
+    });
+
+    it("reports whether a vault exists", () => {
+      simnet.callPublicFn(
+        "multisig-vault",
+        "create-vault",
+        [Cl.stringAscii("Exists Vault"), Cl.uint(1)],
+        deployer
+      );
+      const { result: yes } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "vault-exists",
+        [Cl.uint(0)],
+        deployer
+      );
+      const { result: no } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "vault-exists",
+        [Cl.uint(999)],
+        deployer
+      );
+      expect(yes).toBeBool(true);
+      expect(no).toBeBool(false);
+    });
+
+    it("reports the lock state of a vault", () => {
+      simnet.callPublicFn(
+        "multisig-vault",
+        "create-vault",
+        [Cl.stringAscii("Lock Vault"), Cl.uint(1)],
+        deployer
+      );
+      const { result: unlocked } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "is-vault-locked",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(unlocked).toBeOk(Cl.bool(false));
+
+      simnet.callPublicFn("multisig-vault", "toggle-lock", [Cl.uint(0)], deployer);
+      const { result: locked } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "is-vault-locked",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(locked).toBeOk(Cl.bool(true));
+    });
+
+    it("returns an error for the lock state of a missing vault", () => {
+      const { result } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "is-vault-locked",
+        [Cl.uint(999)],
+        deployer
+      );
+      expect(result).toBeErr(Cl.uint(102)); // ERR-VAULT-NOT-FOUND
+    });
+
+    it("returns the role of a member", () => {
+      simnet.callPublicFn(
+        "multisig-vault",
+        "create-vault",
+        [Cl.stringAscii("Role Vault"), Cl.uint(1)],
+        deployer
+      );
+      simnet.callPublicFn(
+        "multisig-vault",
+        "add-member",
+        [Cl.uint(0), Cl.principal(wallet1), Cl.stringAscii("signer")],
+        deployer
+      );
+      const { result: ownerRole } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "get-member-role",
+        [Cl.uint(0), Cl.principal(deployer)],
+        deployer
+      );
+      const { result: signerRole } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "get-member-role",
+        [Cl.uint(0), Cl.principal(wallet1)],
+        deployer
+      );
+      expect(ownerRole).toBeSome(Cl.stringAscii("owner"));
+      expect(signerRole).toBeSome(Cl.stringAscii("signer"));
+    });
+
+    it("returns none for the role of a non-member", () => {
+      const { result } = simnet.callReadOnlyFn(
+        "multisig-vault",
+        "get-member-role",
+        [Cl.uint(0), Cl.principal(wallet2)],
+        deployer
+      );
+      expect(result).toBeNone();
+    });
+  });
 });
