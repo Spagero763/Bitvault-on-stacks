@@ -111,6 +111,35 @@
   )
 )
 
+(define-read-only (get-vote-counts (proposal-id uint))
+  (match (map-get? proposals { proposal-id: proposal-id })
+    proposal (some {
+      yes-votes: (get yes-votes proposal),
+      no-votes: (get no-votes proposal),
+      required-votes: (get required-votes proposal),
+    })
+    none
+  )
+)
+
+;; Blocks remaining in the voting window, or u0 once it has closed.
+(define-read-only (get-blocks-remaining (proposal-id uint))
+  (match (map-get? proposals { proposal-id: proposal-id })
+    proposal (if (> (get expires-at proposal) stacks-block-height)
+      (- (get expires-at proposal) stacks-block-height)
+      u0
+    )
+    u0
+  )
+)
+
+(define-read-only (is-proposal-passed (proposal-id uint))
+  (match (map-get? proposals { proposal-id: proposal-id })
+    proposal (is-eq (get status proposal) STATUS-PASSED)
+    false
+  )
+)
+
 ;; ---------------------------------------------------------------------------
 ;; Public Functions
 ;; ---------------------------------------------------------------------------
