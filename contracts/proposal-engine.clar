@@ -16,12 +16,14 @@
 (define-constant ERR-THRESHOLD-NOT-MET (err u309))
 (define-constant ERR-TIMELOCK-ACTIVE (err u310))
 (define-constant ERR-INVALID-AMOUNT (err u311))
+(define-constant ERR-NOT-PROPOSER (err u312))
 
 (define-constant STATUS-ACTIVE u1)
 (define-constant STATUS-PASSED u2)
 (define-constant STATUS-REJECTED u3)
 (define-constant STATUS-EXECUTED u4)
 (define-constant STATUS-EXPIRED u5)
+(define-constant STATUS-CANCELLED u6)
 
 (define-constant TYPE-TRANSFER u1)
 (define-constant TYPE-ADD-MEMBER u2)
@@ -236,6 +238,25 @@
         status: STATUS-EXECUTED,
         executed-at: stacks-block-height
       })
+    )
+
+    (ok true)
+  )
+)
+
+;; Cancel an active proposal. Only the original proposer may cancel, and only
+;; while the proposal is still active.
+(define-public (cancel-proposal (proposal-id uint))
+  (let
+    (
+      (proposal (unwrap! (map-get? proposals { proposal-id: proposal-id }) ERR-PROPOSAL-NOT-FOUND))
+    )
+    (asserts! (is-eq tx-sender (get proposer proposal)) ERR-NOT-PROPOSER)
+    (asserts! (is-eq (get status proposal) STATUS-ACTIVE) ERR-PROPOSAL-NOT-ACTIVE)
+
+    (map-set proposals
+      { proposal-id: proposal-id }
+      (merge proposal { status: STATUS-CANCELLED })
     )
 
     (ok true)
