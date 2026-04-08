@@ -188,6 +188,13 @@
     )
 
     (var-set proposal-nonce (+ new-id u1))
+    (print {
+      event: "proposal-created",
+      proposal-id: new-id,
+      vault-id: vault-id,
+      proposer: caller,
+      proposal-type: proposal-type,
+    })
     (ok new-id)
   )
 )
@@ -259,6 +266,11 @@
       (merge proposal { status: STATUS-CANCELLED })
     )
 
+    (print {
+      event: "proposal-cancelled",
+      proposal-id: proposal-id,
+      proposer: tx-sender,
+    })
     (ok true)
   )
 )
