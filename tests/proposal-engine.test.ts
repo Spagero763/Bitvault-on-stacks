@@ -391,4 +391,180 @@ describe("BitVault Proposal Engine", () => {
       expect(result).toBeErr(Cl.uint(304)); // ERR-PROPOSAL-NOT-ACTIVE (STATUS must be PASSED)
     });
   });
+
+  // =========================================================================
+  // Read-only helpers
+  // =========================================================================
+  describe("read-only helpers", () => {
+    function createProposal(vaultId: number) {
+      return simnet.callPublicFn(
+        "proposal-engine",
+        "create-proposal",
+        [
+          Cl.uint(vaultId),
+          Cl.stringAscii("Helper proposal"),
+          Cl.stringAscii("desc"),
+          Cl.uint(1),
+          Cl.uint(144),
+          Cl.some(Cl.principal(wallet2)),
+          Cl.uint(1000),
+        ],
+        deployer
+      );
+    }
+
+    it("returns vote counts for a proposal", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      const { result } = simnet.callReadOnlyFn(
+        "proposal-engine",
+        "get-vote-counts",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(result).toBeSome(
+        Cl.tuple({
+          "yes-votes": Cl.uint(0),
+          "no-votes": Cl.uint(0),
+          "required-votes": Cl.uint(1),
+        })
+      );
+    });
+
+    it("returns none for vote counts of a missing proposal", () => {
+      const { result } = simnet.callReadOnlyFn(
+        "proposal-engine",
+        "get-vote-counts",
+        [Cl.uint(999)],
+        deployer
+      );
+      expect(result).toBeNone();
+    });
+
+    it("reports blocks remaining in the voting window", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      const { result } = simnet.callReadOnlyFn(
+        "proposal-engine",
+        "get-blocks-remaining",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(result).toBeUint(144);
+    });
+
+    it("reports zero blocks remaining for a missing proposal", () => {
+      const { result } = simnet.callReadOnlyFn(
+        "proposal-engine",
+        "get-blocks-remaining",
+        [Cl.uint(999)],
+        deployer
+      );
+      expect(result).toBeUint(0);
+    });
+
+    it("reports a freshly created proposal as not passed", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      const { result } = simnet.callReadOnlyFn(
+        "proposal-engine",
+        "is-proposal-passed",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(result).toBeBool(false);
+    });
+  });
+
+  // =========================================================================
+  // Cancel Proposal
+  // =========================================================================
+  describe("cancel-proposal", () => {
+    function createProposal(vaultId: number, who = deployer) {
+      return simnet.callPublicFn(
+        "proposal-engine",
+        "create-proposal",
+        [
+          Cl.uint(vaultId),
+          Cl.stringAscii("Cancellable"),
+          Cl.stringAscii("desc"),
+          Cl.uint(1),
+          Cl.uint(144),
+          Cl.some(Cl.principal(wallet2)),
+          Cl.uint(1000),
+        ],
+        who
+      );
+    }
+
+    it("lets the proposer cancel an active proposal", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      const { result } = simnet.callPublicFn(
+        "proposal-engine",
+        "cancel-proposal",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(result).toBeOk(Cl.bool(true));
+    });
+
+    it("sets the status to cancelled", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      simnet.callPublicFn(
+        "proposal-engine",
+        "cancel-proposal",
+        [Cl.uint(0)],
+        deployer
+      );
+      const { result } = simnet.callReadOnlyFn(
+        "proposal-engine",
+        "get-proposal-status",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(result).toBeOk(Cl.uint(6)); // STATUS-CANCELLED
+    });
+
+    it("rejects cancellation by a non-proposer", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      const { result } = simnet.callPublicFn(
+        "proposal-engine",
+        "cancel-proposal",
+        [Cl.uint(0)],
+        wallet1
+      );
+      expect(result).toBeErr(Cl.uint(312)); // ERR-NOT-PROPOSER
+    });
+
+    it("rejects cancellation of a missing proposal", () => {
+      const { result } = simnet.callPublicFn(
+        "proposal-engine",
+        "cancel-proposal",
+        [Cl.uint(999)],
+        deployer
+      );
+      expect(result).toBeErr(Cl.uint(302)); // ERR-PROPOSAL-NOT-FOUND
+    });
+
+    it("rejects cancelling an already cancelled proposal", () => {
+      const vaultId = setupVaultWithMember();
+      createProposal(vaultId);
+      simnet.callPublicFn(
+        "proposal-engine",
+        "cancel-proposal",
+        [Cl.uint(0)],
+        deployer
+      );
+      const { result } = simnet.callPublicFn(
+        "proposal-engine",
+        "cancel-proposal",
+        [Cl.uint(0)],
+        deployer
+      );
+      expect(result).toBeErr(Cl.uint(304)); // ERR-PROPOSAL-NOT-ACTIVE
+    });
+  });
 });
