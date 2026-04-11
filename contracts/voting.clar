@@ -83,6 +83,18 @@
     ))
 )
 
+;; Total weighted votes cast (yes + no) for a proposal.
+(define-read-only (get-total-weight-cast (proposal-id uint))
+  (let ((stats (get-vote-stats proposal-id)))
+    (+ (get total-yes stats) (get total-no stats))
+  )
+)
+
+;; True once the proposal's vote stats have been finalized.
+(define-read-only (is-finalized (proposal-id uint))
+  (get finalized (get-vote-stats proposal-id))
+)
+
 ;; ---------------------------------------------------------------------------
 ;; Public Functions
 ;; ---------------------------------------------------------------------------
@@ -128,6 +140,13 @@
       finalized: false,
     })
 
+    (print {
+      event: "vote-cast",
+      proposal-id: proposal-id,
+      voter: caller,
+      vote: vote,
+      weight: voter-weight,
+    })
     (ok true)
   )
 )
