@@ -303,4 +303,74 @@ describe("BitVault Voting", () => {
       expect(result).toBeTuple({ weight: Cl.uint(1) });
     });
   });
+
+  // =========================================================================
+  // Tally helpers
+  // =========================================================================
+  describe("tally helpers", () => {
+    it("reports zero total weight before any votes", () => {
+      const { proposalId } = setupVaultAndProposal();
+      const { result } = simnet.callReadOnlyFn(
+        "voting",
+        "get-total-weight-cast",
+        [Cl.uint(proposalId)],
+        deployer
+      );
+      expect(result).toBeUint(0);
+    });
+
+    it("sums yes and no weights after votes are cast", () => {
+      const { proposalId } = setupVaultAndProposal();
+      simnet.callPublicFn(
+        "voting",
+        "cast-vote",
+        [Cl.uint(proposalId), Cl.bool(true)],
+        deployer
+      );
+      simnet.callPublicFn(
+        "voting",
+        "cast-vote",
+        [Cl.uint(proposalId), Cl.bool(false)],
+        wallet1
+      );
+      const { result } = simnet.callReadOnlyFn(
+        "voting",
+        "get-total-weight-cast",
+        [Cl.uint(proposalId)],
+        deployer
+      );
+      expect(result).toBeUint(2);
+    });
+
+    it("reports a proposal as not finalized until finalize-votes runs", () => {
+      const { proposalId } = setupVaultAndProposal();
+      const { result: before } = simnet.callReadOnlyFn(
+        "voting",
+        "is-finalized",
+        [Cl.uint(proposalId)],
+        deployer
+      );
+      expect(before).toBeBool(false);
+
+      simnet.callPublicFn(
+        "voting",
+        "cast-vote",
+        [Cl.uint(proposalId), Cl.bool(true)],
+        deployer
+      );
+      simnet.callPublicFn(
+        "voting",
+        "finalize-votes",
+        [Cl.uint(proposalId)],
+        deployer
+      );
+      const { result: after } = simnet.callReadOnlyFn(
+        "voting",
+        "is-finalized",
+        [Cl.uint(proposalId)],
+        deployer
+      );
+      expect(after).toBeBool(true);
+    });
+  });
 });
