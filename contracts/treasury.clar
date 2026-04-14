@@ -66,6 +66,11 @@
   (get count (default-to { count: u0 } (map-get? vault-tx-count { vault-id: vault-id })))
 )
 
+;; True if the vault holds at least `amount` micro-STX.
+(define-read-only (can-cover (vault-id uint) (amount uint))
+  (>= (get-stx-balance vault-id) amount)
+)
+
 ;; ---------------------------------------------------------------------------
 ;; Public Functions
 ;; ---------------------------------------------------------------------------
@@ -105,6 +110,12 @@
       { count: (+ tx-count u1) }
     )
 
+    (print {
+      event: "deposit",
+      vault-id: vault-id,
+      sender: caller,
+      amount: amount,
+    })
     (ok true)
   )
 )
@@ -152,6 +163,13 @@
 
     (try! (contract-call? .proposal-engine mark-executed proposal-id))
 
+    (print {
+      event: "withdrawal",
+      vault-id: vault-id,
+      recipient: recipient,
+      amount: amount,
+      proposal-id: proposal-id,
+    })
     (ok true)
   )
 )
