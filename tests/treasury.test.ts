@@ -328,4 +328,54 @@ describe("BitVault Treasury", () => {
       expect(result).toBeTuple({ "stx-balance": Cl.uint(0) });
     });
   });
+
+  // =========================================================================
+  // can-cover
+  // =========================================================================
+  describe("can-cover", () => {
+    it("returns false when the vault has no funds", () => {
+      const vaultId = setupVault();
+      const { result } = simnet.callReadOnlyFn(
+        "treasury",
+        "can-cover",
+        [Cl.uint(vaultId), Cl.uint(1000)],
+        deployer
+      );
+      expect(result).toBeBool(false);
+    });
+
+    it("returns true when the balance covers the amount", () => {
+      const vaultId = setupVault();
+      simnet.callPublicFn(
+        "treasury",
+        "deposit-stx",
+        [Cl.uint(vaultId), Cl.uint(5000)],
+        deployer
+      );
+      const { result } = simnet.callReadOnlyFn(
+        "treasury",
+        "can-cover",
+        [Cl.uint(vaultId), Cl.uint(5000)],
+        deployer
+      );
+      expect(result).toBeBool(true);
+    });
+
+    it("returns false when the amount exceeds the balance", () => {
+      const vaultId = setupVault();
+      simnet.callPublicFn(
+        "treasury",
+        "deposit-stx",
+        [Cl.uint(vaultId), Cl.uint(5000)],
+        deployer
+      );
+      const { result } = simnet.callReadOnlyFn(
+        "treasury",
+        "can-cover",
+        [Cl.uint(vaultId), Cl.uint(5001)],
+        deployer
+      );
+      expect(result).toBeBool(false);
+    });
+  });
 });
