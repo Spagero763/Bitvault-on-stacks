@@ -71,6 +71,18 @@
     (asserts! (<= (+ (var-get total-minted) amount) MAX-SUPPLY) ERR-MINT-FAILED)
     (try! (ft-mint? bitvault-token amount recipient))
     (var-set total-minted (+ (var-get total-minted) amount))
+    (print { event: "mint", amount: amount, recipient: recipient })
+    (ok true)
+  )
+)
+
+;; Burn tokens from the caller's own balance
+(define-public (burn (amount uint))
+  (begin
+    (asserts! (> amount u0) ERR-INVALID-AMOUNT)
+    (asserts! (>= (ft-get-balance bitvault-token tx-sender) amount) ERR-INSUFFICIENT-BALANCE)
+    (try! (ft-burn? bitvault-token amount tx-sender))
+    (print { event: "burn", amount: amount, owner: tx-sender })
     (ok true)
   )
 )
