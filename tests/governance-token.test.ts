@@ -336,4 +336,80 @@ describe("BitVault Governance Token (SIP-010)", () => {
       expect(result).toBeErr(Cl.uint(200)); // ERR-NOT-AUTHORIZED
     });
   });
+
+  // =========================================================================
+  // Burn
+  // =========================================================================
+  describe("burn", () => {
+    it("burns tokens from the caller's balance", () => {
+      simnet.callPublicFn(
+        "governance-token",
+        "mint",
+        [Cl.uint(5000), Cl.principal(wallet1)],
+        deployer
+      );
+      const { result } = simnet.callPublicFn(
+        "governance-token",
+        "burn",
+        [Cl.uint(2000)],
+        wallet1
+      );
+      expect(result).toBeOk(Cl.bool(true));
+    });
+
+    it("reduces the balance and total supply after burning", () => {
+      simnet.callPublicFn(
+        "governance-token",
+        "mint",
+        [Cl.uint(5000), Cl.principal(wallet1)],
+        deployer
+      );
+      simnet.callPublicFn(
+        "governance-token",
+        "burn",
+        [Cl.uint(2000)],
+        wallet1
+      );
+      const { result: balance } = simnet.callReadOnlyFn(
+        "governance-token",
+        "get-balance",
+        [Cl.principal(wallet1)],
+        deployer
+      );
+      const { result: supply } = simnet.callReadOnlyFn(
+        "governance-token",
+        "get-total-supply",
+        [],
+        deployer
+      );
+      expect(balance).toBeOk(Cl.uint(3000));
+      expect(supply).toBeOk(Cl.uint(3000));
+    });
+
+    it("rejects burning zero tokens", () => {
+      const { result } = simnet.callPublicFn(
+        "governance-token",
+        "burn",
+        [Cl.uint(0)],
+        wallet1
+      );
+      expect(result).toBeErr(Cl.uint(202)); // ERR-INVALID-AMOUNT
+    });
+
+    it("rejects burning more than the balance", () => {
+      simnet.callPublicFn(
+        "governance-token",
+        "mint",
+        [Cl.uint(1000), Cl.principal(wallet1)],
+        deployer
+      );
+      const { result } = simnet.callPublicFn(
+        "governance-token",
+        "burn",
+        [Cl.uint(2000)],
+        wallet1
+      );
+      expect(result).toBeErr(Cl.uint(201)); // ERR-INSUFFICIENT-BALANCE
+    });
+  });
 });
