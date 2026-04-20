@@ -44,6 +44,7 @@ identifies the contract it came from.
 | u309 | ERR-THRESHOLD-NOT-MET | Yes votes did not reach the threshold. |
 | u310 | ERR-TIMELOCK-ACTIVE | The time-lock has not cleared. |
 | u311 | ERR-INVALID-AMOUNT | Amount must be greater than zero. |
+| u312 | ERR-NOT-PROPOSER | Only the proposer can cancel the proposal. |
 
 ## voting (400–499)
 
