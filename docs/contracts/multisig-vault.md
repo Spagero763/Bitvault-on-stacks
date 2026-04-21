@@ -19,6 +19,15 @@ base contract the rest of BitVault depends on.
 | `get-vault-member-count (vault-id)` | The current member count. |
 | `get-vault-nonce` | The next vault id to be assigned. |
 | `get-owner-vault-count (owner)` | How many vaults a principal owns. |
+| `get-max-members` | The maximum members allowed per vault. |
+| `vault-exists (vault-id)` | Whether a vault with the id exists. |
+| `is-vault-locked (vault-id)` | The lock state, or an error if missing. |
+| `get-member-role (vault-id member)` | The member's role, or none. |
+
+## Events
+
+Public functions emit `print` events for off-chain indexers:
+`vault-created`, `member-added`, and `member-removed`.
 
 ## Public functions
 
