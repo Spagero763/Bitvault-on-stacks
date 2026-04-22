@@ -40,6 +40,9 @@ time-lock, and the execution flag.
 | `get-proposal-nonce` | The next proposal id. |
 | `is-proposal-active (proposal-id)` | Active and within the voting window. |
 | `is-proposal-executable (proposal-id)` | Passed and past the time-lock. |
+| `get-vote-counts (proposal-id)` | Yes, no, and required votes, or none. |
+| `get-blocks-remaining (proposal-id)` | Blocks left in the voting window. |
+| `is-proposal-passed (proposal-id)` | Whether the proposal has passed. |
 
 ## Public functions
 
@@ -57,3 +60,12 @@ Moves an active proposal to passed (if it reached the required votes) or rejecte
 
 Flags a passed proposal as executed once its time-lock has cleared. Called by the
 treasury when it executes a transfer.
+
+### `cancel-proposal (proposal-id)`
+
+Lets the original proposer cancel their proposal while it is still active. The
+status becomes `STATUS-CANCELLED` (u6).
+
+## Events
+
+Emits `proposal-created` and `proposal-cancelled` print events.
