@@ -16,6 +16,13 @@ governance.
 | `get-vote-stats (proposal-id)` | Yes/no totals, voter count, finalized flag. |
 | `get-vote-weight (vault-id voter)` | The voter's weight (default 1). |
 | `has-voter-voted (proposal-id voter)` | Whether the voter already voted. |
+| `get-total-weight-cast (proposal-id)` | Sum of yes and no weights. |
+| `is-finalized (proposal-id)` | Whether the vote stats are finalized. |
+
+## Events
+
+`cast-vote` emits a `vote-cast` print event including the voter, choice, and
+weight.
 
 ## Public functions
 
