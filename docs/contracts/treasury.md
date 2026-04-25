@@ -11,6 +11,11 @@ gated by passed, time-lock-cleared transfer proposals.
 | `get-stx-balance (vault-id)` | The STX balance as a uint. |
 | `get-transaction (vault-id tx-id)` | A single transaction record, or none. |
 | `get-tx-count (vault-id)` | Number of recorded transactions. |
+| `can-cover (vault-id amount)` | Whether the vault balance covers an amount. |
+
+## Events
+
+`deposit-stx` and `execute-transfer` emit `deposit` and `withdrawal` print events.
 
 ## Public functions
 

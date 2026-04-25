@@ -27,7 +27,13 @@ amount must be greater than zero. An optional memo is printed for indexers.
 
 ### `mint (amount recipient)`
 
-Owner-only. Mints new tokens to a recipient up to the maximum supply.
+Owner-only. Mints new tokens to a recipient up to the maximum supply. Emits a
+`mint` event.
+
+### `burn (amount)`
+
+Burns tokens from the caller's own balance, reducing the total supply. Emits a
+`burn` event.
 
 ### `set-token-uri (new-uri)`
 
