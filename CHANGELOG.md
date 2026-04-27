@@ -11,6 +11,12 @@ based on [Keep a Changelog](https://keepachangelog.com/).
   per-contract guides.
 - Contributing guide, security policy, and code of conduct.
 - Continuous integration for the contracts and the frontend.
+- `cancel-proposal` so a proposer can withdraw their own active proposal.
+- `burn` on the governance token to reduce supply.
+- Read-only helpers across the contracts: vault lock state and roles, proposal
+  vote counts and timing, voting tallies, and treasury balance checks.
+- `print` events on vault, proposal, voting, treasury, and token actions for
+  off-chain indexing.
 
 ## [0.1.0] - 2026-02-25
 
