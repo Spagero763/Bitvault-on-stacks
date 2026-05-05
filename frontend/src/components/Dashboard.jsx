@@ -5,6 +5,7 @@ import {
     cvToHex,
 } from "@stacks/transactions";
 import { CONTRACT_ADDRESS, STACKS_NETWORK } from "../stacksConfig";
+import { truncateAddress, microToStx, stxToMicro } from "../utils/format";
 
 // Stacks API base
 const API_BASE =
@@ -107,7 +108,7 @@ function Dashboard({ stxAddress, showToast }) {
                             threshold: parseInt(v?.threshold?.value ?? "1", 10),
                             memberCount: parseInt(v?.["member-count"]?.value ?? "1", 10),
                             isLocked: v?.["is-locked"]?.value === true,
-                            balance: balance / 1_000_000,
+                            balance: microToStx(balance),
                         });
                     }
                 } catch { /* skip */ }
@@ -173,7 +174,7 @@ function Dashboard({ stxAddress, showToast }) {
     };
 
     const depositSTX = async () => {
-        const amountMicro = Math.floor(parseFloat(depositAmount) * 1_000_000);
+        const amountMicro = stxToMicro(depositAmount);
         if (!amountMicro || amountMicro <= 0) return showToast("Enter a valid amount", "error");
         await callContract(
             "treasury", "deposit-stx",
@@ -233,7 +234,7 @@ function Dashboard({ stxAddress, showToast }) {
                 <div className="stat-card">
                     <div className="stat-label">Your Address</div>
                     <div className="stat-value accent" style={{ fontSize: 14, fontFamily: "monospace" }}>
-                        {stxAddress.slice(0, 10)}...{stxAddress.slice(-6)}
+                        {truncateAddress(stxAddress, 10, 6)}
                     </div>
                 </div>
                 <div className="stat-card">
