@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { connect, isConnected, disconnect, getLocalStorage } from "@stacks/connect";
 import { APP_NAME } from "./stacksConfig";
+import { truncateAddress } from "./utils/format";
 import Dashboard from "./components/Dashboard";
 import "./index.css";
 
@@ -73,7 +74,7 @@ function App() {
           {stxAddress ? (
             <>
               <span className="address">
-                {stxAddress.slice(0, 6)}...{stxAddress.slice(-4)}
+                {truncateAddress(stxAddress)}
               </span>
               <button
                 className="btn btn-secondary btn-sm"
