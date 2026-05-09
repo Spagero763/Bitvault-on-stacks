@@ -3,6 +3,7 @@ import { connect, isConnected, disconnect, getLocalStorage } from "@stacks/conne
 import { APP_NAME } from "./stacksConfig";
 import { truncateAddress } from "./utils/format";
 import Dashboard from "./components/Dashboard";
+import Footer from "./components/Footer";
 import "./index.css";
 
 function App() {
@@ -128,6 +129,8 @@ function App() {
           </div>
         )}
       </main>
+
+      <Footer />
 
       {/* Toast */}
       {toast && (
