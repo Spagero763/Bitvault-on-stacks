@@ -6,6 +6,7 @@ import {
 } from "@stacks/transactions";
 import { CONTRACT_ADDRESS, STACKS_NETWORK } from "../stacksConfig";
 import { truncateAddress, microToStx, stxToMicro } from "../utils/format";
+import LoadingSpinner from "./LoadingSpinner";
 
 // Stacks API base
 const API_BASE =
@@ -272,7 +273,7 @@ function Dashboard({ stxAddress, showToast }) {
                         </div>
                     </div>
                     {loading ? (
-                        <div className="empty-state"><p>Loading from chain…</p></div>
+                        <LoadingSpinner label="Loading from chain…" />
                     ) : vaults.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-state-icon">🏦</div>
@@ -322,7 +323,7 @@ function Dashboard({ stxAddress, showToast }) {
                         </div>
                     </div>
                     {loading ? (
-                        <div className="empty-state"><p>Loading proposals…</p></div>
+                        <LoadingSpinner label="Loading proposals…" />
                     ) : proposals.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-state-icon">📋</div>
@@ -365,7 +366,7 @@ function Dashboard({ stxAddress, showToast }) {
                         </div>
                     </div>
                     {loading ? (
-                        <div className="empty-state"><p>Loading treasury…</p></div>
+                        <LoadingSpinner label="Loading treasury…" />
                     ) : vaults.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-state-icon">💰</div>
