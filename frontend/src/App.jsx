@@ -62,6 +62,16 @@ function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
+  const copyAddress = useCallback(async () => {
+    if (!stxAddress) return;
+    try {
+      await navigator.clipboard.writeText(stxAddress);
+      showToast("Address copied", "success");
+    } catch {
+      showToast("Could not copy address", "error");
+    }
+  }, [stxAddress]);
+
   return (
     <div className="app">
       {/* Navbar */}
@@ -74,7 +84,12 @@ function App() {
         <div className="navbar-actions">
           {stxAddress ? (
             <>
-              <span className="address">
+              <span
+                className="address"
+                onClick={copyAddress}
+                title="Click to copy address"
+                style={{ cursor: "pointer" }}
+              >
                 {truncateAddress(stxAddress)}
               </span>
               <button
