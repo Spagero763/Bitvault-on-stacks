@@ -7,6 +7,13 @@ import {
 import { CONTRACT_ADDRESS, STACKS_NETWORK } from "../stacksConfig";
 import { truncateAddress, microToStx, stxToMicro } from "../utils/format";
 import LoadingSpinner from "./LoadingSpinner";
+import {
+    PROPOSAL_TYPES,
+    PROPOSAL_STATUS,
+    MEMBER_ROLES,
+    MIN_VOTING_PERIOD,
+    MAX_VOTING_PERIOD,
+} from "../constants";
 
 // Stacks API base
 const API_BASE =
@@ -117,7 +124,7 @@ function Dashboard({ stxAddress, showToast }) {
             setVaults(vaultList);
 
             // Load proposals (cap 10)
-            const statusLabels = { 1: "Active", 2: "Passed", 3: "Rejected", 4: "Executed", 5: "Expired" };
+            const statusLabels = PROPOSAL_STATUS;
             const proposalList = [];
             for (let i = 0; i < Math.min(totalProposals, 10); i++) {
                 try {
@@ -450,11 +457,9 @@ function Dashboard({ stxAddress, showToast }) {
                             <div className="form-group">
                                 <label className="form-label">Type</label>
                                 <select className="form-input" value={proposalType} onChange={(e) => setProposalType(e.target.value)}>
-                                    <option value="1">Transfer</option>
-                                    <option value="2">Add Member</option>
-                                    <option value="3">Remove Member</option>
-                                    <option value="4">Change Threshold</option>
-                                    <option value="5">Custom</option>
+                                    {PROPOSAL_TYPES.map((t) => (
+                                        <option key={t.value} value={t.value}>{t.label}</option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -469,7 +474,7 @@ function Dashboard({ stxAddress, showToast }) {
                         <div className="form-row">
                             <div className="form-group">
                                 <label className="form-label">Voting Period (blocks)</label>
-                                <input className="form-input" type="number" min="72" max="4320" value={votingPeriod} onChange={(e) => setVotingPeriod(e.target.value)} />
+                                <input className="form-input" type="number" min={MIN_VOTING_PERIOD} max={MAX_VOTING_PERIOD} value={votingPeriod} onChange={(e) => setVotingPeriod(e.target.value)} />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Target Amount (µSTX)</label>
@@ -503,9 +508,9 @@ function Dashboard({ stxAddress, showToast }) {
                         <div className="form-group">
                             <label className="form-label">Role</label>
                             <select className="form-input" value={memberRole} onChange={(e) => setMemberRole(e.target.value)}>
-                                <option value="member">Member</option>
-                                <option value="signer">Signer</option>
-                                <option value="admin">Admin</option>
+                                {MEMBER_ROLES.map((r) => (
+                                    <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                                ))}
                             </select>
                         </div>
                         <div className="modal-actions">
