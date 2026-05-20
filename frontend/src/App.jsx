@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { connect, isConnected, disconnect, getLocalStorage } from "@stacks/connect";
 import { APP_NAME } from "./stacksConfig";
 import { truncateAddress } from "./utils/format";
@@ -6,21 +6,25 @@ import Dashboard from "./components/Dashboard";
 import Footer from "./components/Footer";
 import "./index.css";
 
+// Read the already-connected address (if any) from local storage on first load.
+function readStoredAddress() {
+  if (!isConnected()) return null;
+  const stored = getLocalStorage();
+  return (
+    stored?.addresses?.stx?.find((a) => a.type === "p2pkh" || a.symbol === "STX")
+      ?.address ||
+    stored?.addresses?.stx?.[0]?.address ||
+    null
+  );
+}
+
 function App() {
-  const [stxAddress, setStxAddress] = useState(null);
+  const [stxAddress, setStxAddress] = useState(readStoredAddress);
   const [toast, setToast] = useState(null);
 
-  // On mount, check if already connected
-  useEffect(() => {
-    if (isConnected()) {
-      const stored = getLocalStorage();
-      const addr =
-        stored?.addresses?.stx?.find((a) => a.type === "p2pkh" || a.symbol === "STX")
-          ?.address ||
-        stored?.addresses?.stx?.[0]?.address ||
-        null;
-      setStxAddress(addr);
-    }
+  const showToast = useCallback((message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
   }, []);
 
   const connectWallet = useCallback(async () => {
@@ -49,20 +53,15 @@ function App() {
         showToast("Connection cancelled", "error");
       }
     }
-  }, []);
+  }, [showToast]);
 
   const disconnectWallet = useCallback(() => {
     disconnect();
     setStxAddress(null);
     showToast("Wallet disconnected", "success");
-  }, []);
+  }, [showToast]);
 
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  };
-
-  const copyAddress = useCallback(async () => {
+  const copyAddress = async () => {
     if (!stxAddress) return;
     try {
       await navigator.clipboard.writeText(stxAddress);
@@ -70,7 +69,7 @@ function App() {
     } catch {
       showToast("Could not copy address", "error");
     }
-  }, [stxAddress]);
+  };
 
   return (
     <div className="app">
