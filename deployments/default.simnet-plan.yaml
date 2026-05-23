@@ -79,6 +79,11 @@ plan:
             path: contracts/proposal-engine.clar
             clarity-version: 3
         - emulated-contract-publish:
+            contract-name: staking
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/staking.clar
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: treasury
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/treasury.clar

@@ -34,6 +34,12 @@ clarity_version = 3
 epoch = 'latest'
 depends_on = ['multisig-vault', 'proposal-engine']
 
+[contracts.staking]
+path = 'contracts/staking.clar'
+clarity_version = 3
+epoch = 'latest'
+depends_on = ['governance-token']
+
 [repl.analysis]
 passes = ['check_checker']
 
