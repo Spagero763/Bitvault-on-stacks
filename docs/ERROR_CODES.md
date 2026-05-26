@@ -71,3 +71,12 @@ identifies the contract it came from.
 | u506 | ERR-WRONG-PROPOSAL-TYPE | The proposal is not a transfer. |
 | u507 | ERR-INVALID-AMOUNT | Amount must be greater than zero. |
 | u508 | ERR-DEPOSIT-FAILED | The STX deposit failed. |
+
+## staking (600–699)
+
+| Code | Name | Meaning |
+| --- | --- | --- |
+| u600 | ERR-NOT-AUTHORIZED | Caller is not allowed to perform the action. |
+| u601 | ERR-INVALID-AMOUNT | Amount must be greater than zero. |
+| u602 | ERR-INSUFFICIENT-STAKE | Caller has not staked enough to unstake. |
+| u603 | ERR-TRANSFER-FAILED | The token transfer failed. |
