@@ -36,6 +36,12 @@ running transaction history per vault.
 
 A SIP-010 fungible token (BVT) intended for token-weighted voting and incentives.
 
+### staking
+
+Holds staked BVT on behalf of token holders. Staking is the basis for voting
+weight and future reward distribution; staked tokens are escrowed by the contract
+until the staker withdraws them.
+
 ## A proposal end to end
 
 1. A member calls `create-proposal` on `proposal-engine`.
