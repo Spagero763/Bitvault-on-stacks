@@ -14,6 +14,7 @@ export const CONTRACTS = {
     proposalEngine: `${CONTRACT_ADDRESS}.proposal-engine`,
     voting: `${CONTRACT_ADDRESS}.voting`,
     treasury: `${CONTRACT_ADDRESS}.treasury`,
+    staking: `${CONTRACT_ADDRESS}.staking`,
 };
 
 export const APP_NAME = "BitVault";
