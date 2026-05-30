@@ -17,6 +17,8 @@ based on [Keep a Changelog](https://keepachangelog.com/).
   vote counts and timing, voting tallies, and treasury balance checks.
 - `print` events on vault, proposal, voting, treasury, and token actions for
   off-chain indexing.
+- `staking` contract: stake and unstake BVT, with read-only totals and per-staker
+  balances, as the basis for voting weight and rewards.
 
 ## [0.1.0] - 2026-02-25
 
