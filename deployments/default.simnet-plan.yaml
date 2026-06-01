@@ -69,6 +69,11 @@ plan:
             path: contracts/governance-token.clar
             clarity-version: 3
         - emulated-contract-publish:
+            contract-name: membership-nft
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/membership-nft.clar
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: multisig-vault
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/multisig-vault.clar
