@@ -80,3 +80,12 @@ identifies the contract it came from.
 | u601 | ERR-INVALID-AMOUNT | Amount must be greater than zero. |
 | u602 | ERR-INSUFFICIENT-STAKE | Caller has not staked enough to unstake. |
 | u603 | ERR-TRANSFER-FAILED | The token transfer failed. |
+
+## membership-nft (700–799)
+
+| Code | Name | Meaning |
+| --- | --- | --- |
+| u700 | ERR-NOT-AUTHORIZED | Caller is not the contract owner or token sender. |
+| u701 | ERR-NOT-TOKEN-OWNER | Caller does not own the badge. |
+| u702 | ERR-TOKEN-NOT-FOUND | No badge with the given id. |
+| u703 | ERR-INVALID-RECIPIENT | The recipient is invalid. |
