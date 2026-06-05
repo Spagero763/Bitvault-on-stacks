@@ -32,6 +32,7 @@ BitVault is made up of five Clarity contracts that build on one another:
 | `treasury` | STX deposits, proposal-gated withdrawals, and transaction history. |
 | `governance-token` | SIP-010 BVT token used for token-weighted voting. |
 | `staking` | Stake BVT for voting weight and future rewards. |
+| `membership-nft` | SIP-009 membership badges for vault members. |
 
 Dependencies flow upward: `proposal-engine` reads the vault, `voting` reads both
 the vault and proposals, and `treasury` executes transfers approved by a passed
