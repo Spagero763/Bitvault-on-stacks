@@ -15,6 +15,7 @@ export const CONTRACTS = {
     voting: `${CONTRACT_ADDRESS}.voting`,
     treasury: `${CONTRACT_ADDRESS}.treasury`,
     staking: `${CONTRACT_ADDRESS}.staking`,
+    membershipNft: `${CONTRACT_ADDRESS}.membership-nft`,
 };
 
 export const APP_NAME = "BitVault";
