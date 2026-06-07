@@ -42,6 +42,12 @@ Holds staked BVT on behalf of token holders. Staking is the basis for voting
 weight and future reward distribution; staked tokens are escrowed by the contract
 until the staker withdraws them.
 
+### membership-nft
+
+A SIP-009 non-fungible token that issues membership badges. Badges are independent
+of vault membership records but can be used to represent roles, tiers, or access
+off-chain.
+
 ## A proposal end to end
 
 1. A member calls `create-proposal` on `proposal-engine`.
