@@ -19,6 +19,8 @@ based on [Keep a Changelog](https://keepachangelog.com/).
   off-chain indexing.
 - `staking` contract: stake and unstake BVT, with read-only totals and per-staker
   balances, as the basis for voting weight and rewards.
+- `membership-nft` contract: SIP-009 membership badges with mint, transfer, burn,
+  and per-token vault and tier metadata.
 
 ## [0.1.0] - 2026-02-25
 
