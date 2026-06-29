@@ -17,7 +17,7 @@
     "@types/node": "^26.0.1",
     "@stacks/transactions": "^7.2.0",
     "chokidar-cli": "^3.0.0",
-    "vitest": "^3.2.4",
+    "vitest": "^4.1.9",
     "vitest-environment-clarinet": "^3.0.2"
   }
 }
